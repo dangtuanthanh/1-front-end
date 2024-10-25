@@ -1,24 +1,28 @@
-import logo from './logo.svg';
-import './App.css';
+// src/App.js
+import React, { Suspense, lazy } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import './App.css'; // Custom CSS for styling
+// Lazy load các trang
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const RoomsPage = lazy(() => import('./pages//MessagingPage'));
+const ChatPage = lazy(() => import('./pages/ChatPage'));
+const UserProfilePage = lazy(() => import('./pages/UserProfilePage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 function App() {
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Suspense fallback={<div>Vui lòng chờ...</div>}>
+        <Routes>
+          <Route path="/" element={<LoginPage />} />
+          <Route path="/rooms" element={<RoomsPage />} />
+          <Route path="/chat/:roomId" element={<ChatPage />} />
+          <Route path="/profile" element={<UserProfilePage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Suspense>
+    </Router>
   );
 }
 

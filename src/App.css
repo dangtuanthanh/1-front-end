@@ -1,38 +1,236 @@
-.App {
+/* App.css */
+
+/* Biến màu cho Light Mode */
+:root {
+  --background-color: #ffffff;
+  --text-color: #000000;
+  --primary-color: #007bff;
+  --error-color: #ff6347;
+}
+
+/* Biến màu cho Dark Mode */
+.dark-mode {
+  --background-color: #2c2c2c;
+  --text-color: #f0f0f0;
+  --primary-color: #1e90ff;
+  --error-color: #ff4500;
+}
+
+.light-mode {
+  --background-color: #ffffff;
+  --text-color: #000000;
+}
+
+/* Áp dụng chế độ Dark Mode theo cài đặt hệ điều hành */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-color: #2c2c2c;
+    --text-color: #f0f0f0;
+    --primary-color: #1e90ff;
+    --error-color: #ff4500;
+  }
+}
+
+/* Áp dụng biến màu vào toàn bộ ứng dụng */
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.notfound-title {
+  color: var(--error-color);
+}
+
+/* ThemeSelector.js */
+.theme-selector {
+  display: inline-block;
+  margin: 10px;
+}
+
+.theme-selector label {
+  margin-right: 10px;
+  font-size: 1.2em;
+}
+
+.theme-selector select {
+  width: 100%;
+  /* Sẽ phụ thuộc vào phần tử cha */
+  max-width: 200px;
+  padding: 5px;
+}
+
+
+
+/* css notfound page */
+.notfound-container {
+  text-align: center;
+  margin-top: 50px;
+}
+
+.notfound-title {
+  font-size: 3em;
+  color: var(--error-color);
+}
+
+.notfound-description {
+  font-size: 1.5em;
+  margin: 20px 0;
+}
+
+.notfound-btn {
+  font-size: 1.2em;
+  padding: 10px 20px;
+  margin-top: 20px;
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.notfound-image {
+  width: 50%;
+  max-width: 400px;
+  height: auto;
+  margin-top: 10px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* css LoginPage.js */
+.auth-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  padding: 20px;
+}
+
+.auth-page-logo {
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 20px;
+}
+
+.auth-page-logo img {
+  width: 100%;
+  max-width: 100%;
+  /* Đảm bảo ảnh không vượt quá chiều rộng container */
+  height: auto;
+  /* Tự động điều chỉnh chiều cao theo tỉ lệ */
+  display: block;
+  /* Loại bỏ khoảng cách dư thừa xung quanh ảnh */
+  object-fit: contain;
+  /* Đảm bảo giữ nguyên tỷ lệ ảnh trong container */
+  border-radius: 20%;
+
+}
+
+.auth-form {
+  width: 100%;
+  max-width: 400px;
+}
+
+@media (min-width: 768px) {
+  .auth-page {
+    flex-direction: row;
+  }
+
+  .auth-page-logo {
+    margin-bottom: 0;
+    margin-right: 13%;
+  }
+}
+.error-message{
+  color: red;
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* Room.js */
+/* src/assets/styles/Room.css */
+
+.room-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.room-content {
+  flex-grow: 1;
+  overflow-y: auto;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.room-nav {
+  border-top: 1px solid #ddd;
+  padding: 10px 0;
+}
+
+.nav-button {
+  background: none;
+  border: none;
+  color: #6c757d;
+  font-size: 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  width: 100%;
 }
 
-.App-link {
-  color: #61dafb;
+.nav-button.active {
+  color: #007bff;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.nav-button:focus {
+  outline: none;
+}
+
+
+/* RoomList.js */
+
+.room-list-container {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.room-list-title {
+  font-weight: bolder;
+  font-size: 2rem;
+  margin-bottom: 15px;
+}
+
+.search-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  color: #007bff;
+  margin-right: 8px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: #007bff;
+}
+
+.room-list-content {
+  flex-grow: 1;
+  overflow-y: auto;
 }
