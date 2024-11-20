@@ -1,6 +1,6 @@
 // src/components/Auth/LoginForm.js
 import React, { useState } from 'react';
-// import { GoogleLogin } from '@react-oauth/google';
+import { GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -48,10 +48,13 @@ const LoginForm = ({ setCurrentForm }) => {
     try {
       const response = await axios.post(url.googleLogin, {
         tokenId: credentialResponse.credential,
+      }, { 
+        withCredentials: true   // Bật cookie khi gửi request
       });
       
       if (response.status === 200) {
-        dispatch(login({ user: response.data.user, token: response.data.token }));
+        setCookie('accessToken',response.data.accessToken,15)
+        dispatch(login({ user: response.data.user, token: response.data.accessToken }));
         navigate('/rooms');
       }
     } catch (err) {
@@ -103,12 +106,12 @@ const LoginForm = ({ setCurrentForm }) => {
       </div>
       <hr />
       <div className="mt-3">
-        {/* <GoogleLogin
+        <GoogleLogin
           onSuccess={handleGoogleLoginSuccess}
           onError={() => {
             setError('Đăng nhập Google thất bại.');
           }}
-        /> */}
+        />
       </div>
       <div className="mt-3 d-flex justify-content-center">
         <button

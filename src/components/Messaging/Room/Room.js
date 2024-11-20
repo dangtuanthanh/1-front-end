@@ -16,7 +16,7 @@ const Room = () => {
   };
 
   return (
-    <div className="room-container d-flex flex-column shadow p-3 mt-3 ms-3 mb-3 rounded">
+    <div className="room-container d-flex flex-column shadow p-3 ms-3 mt-3 me-3 rounded">
       {/* Nội dung chính hiển thị RoomList hoặc UserProfile */}
       <div className="room-content flex-grow-1">
         {renderContent()}

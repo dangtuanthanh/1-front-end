@@ -22,8 +22,6 @@ export const applyTheme = (theme) => {
   export const loadAndApplyTheme = () => {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) {
-        console.log('có dữ liệu');
-        
       applyTheme(savedTheme);
     } else {
       const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;

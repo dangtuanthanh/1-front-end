@@ -17,21 +17,21 @@ const MessagingPage = () => {
   // Xử lý responsive
   useEffect(() => {
     const verifyToken = async () => {
-        const result = await CheckToken();  // Gọi hàm checkToken
-  
-        if (!result.success) {
-          navigate('/');  // Điều hướng nếu token không hợp lệ
-        } else {
-          // Dispatch thông tin người dùng nếu token hợp lệ
-          if (result.user) {
-            dispatch(login({ user: result.user }));
-          }
-          setLoading(false);  // Tắt trạng thái loading khi đã xong
+      const result = await CheckToken();  // Gọi hàm checkToken
+
+      if (!result.success) {
+        navigate('/');  // Điều hướng nếu token không hợp lệ
+      } else {
+        // Dispatch thông tin người dùng nếu token hợp lệ
+        if (result.user) {
+          dispatch(login({ user: result.user }));
         }
-      };
-  
-      verifyToken();  // Gọi hàm kiểm tra token
-      loadAndApplyTheme();  // Áp dụng giao diện khi trang được tải
+        setLoading(false);  // Tắt trạng thái loading khi đã xong
+      }
+    };
+
+    verifyToken();  // Gọi hàm kiểm tra token
+    loadAndApplyTheme();  // Áp dụng giao diện khi trang được tải
 
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
@@ -40,7 +40,7 @@ const MessagingPage = () => {
     handleResize(); // Thiết lập giá trị ban đầu
     return () => window.removeEventListener('resize', handleResize);
 
-    
+
   }, [navigate, dispatch]);
 
   // Hàm chọn phòng hoặc người dùng
@@ -62,7 +62,7 @@ const MessagingPage = () => {
               <Room onSelectRoom={handleSelectRoom} />
             </div>
             {/* Phần bên phải: ChatList */}
-            <div className="col-7 p-0"> 
+            <div className="col-7 p-0">
               <ChatList selectedRoom={selectedRoom} />
             </div>
           </>

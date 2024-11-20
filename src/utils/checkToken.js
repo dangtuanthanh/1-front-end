@@ -25,9 +25,9 @@ const CheckToken = async () => {
 
                 if (!result.success) {
                     return { success: false };
-                  } else {
-                    return { success: true, user: result.user  };
-                  }
+                } else {
+                    return { success: true, user: result.user };
+                }
 
             } else if (err.response.status === 500) {
                 return { success: false };
