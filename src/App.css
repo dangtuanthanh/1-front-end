@@ -254,11 +254,15 @@ body {
 }
 
 /* Hình ảnh bo tròn */
-.room-image img {
+.room-image {
   width: 48px;
   height: 48px;
-  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0; /* Ngăn hình ảnh bị co lại */
 }
+
 
 /* Dấu chấm phân cách */
 .dot-separator {
@@ -270,4 +274,30 @@ body {
 .unread-count {
   font-size: 0.8rem;
   padding: 4px 8px;
+}
+
+
+/* MessageForm.js */
+.message-form {
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  background-color: #f9f9f9;
+  width: 100%;
+  margin: 0 auto; /* Canh giữa */
+}
+
+.icon-container {
+  font-size: 1.2rem;
+  color: #6c757d;
+  cursor: pointer;
+}
+
+.icon-container:hover {
+  color: #495057;
+}
+
+button.disabled {
+  background-color: #d6d6d6;
+  border-color: #d6d6d6;
+  cursor: not-allowed;
 }

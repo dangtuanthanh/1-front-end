@@ -7,60 +7,118 @@ import UserSearch from './UserSearch';
 import RoomItem from './RoomItem';
 import { BsArrowLeft } from 'react-icons/bs';
 import { getCookie } from '../../../utils/cookie';
-import socket from '../../../socket';
-
+import { initializeSocket, socket } from '../../../socket';
+import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { setChatInfo } from '../../../redux/slices/chatSlice';
 const url = require("../../../urls");
 
 const RoomList = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const chatInfo = useSelector((state) => state.chat);
   const [isSearching, setIsSearching] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [rooms, setRooms] = useState([]); // State lưu danh sách phòng chat
   const [title, setTitle] = useState();
   const accessToken = getCookie('accessToken');
-
+  const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
+  const [totalPages, setTotalPages] = useState(1); // Tổng số trang
+  const [loading, setLoading] = useState(false); // Trạng thái tải dữ liệu
+  const [hasMore, setHasMore] = useState(true); // Kiểm tra còn dữ liệu để tải không
+  const [titleError, setTitleError] = useState(); // Dữ liệu người dùng
+  const scrollContainerRef = useRef(null);
   // Hàm lấy danh sách phòng chat người dùng từ API
-  const fetchUserRooms = async (isRetry = false) => {
+  const fetchUserRooms = async (page = 1, append = false, isRetry = false) => {
     try {
-      setTitle();
+      setLoading(true);
+      setTitleError();
       const response = await axios.get(url.getUserRooms, {
+        params: {
+          page,
+          limit: 15,
+        },
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       });
       if (response.status === 200) {
-        setRooms(response.data.rooms);
+        const { rooms: newRooms, totalPages, currentPage } = response.data;
+        setRooms((prev) => (append ? [...prev, ...newRooms] : newRooms));
+        if (!chatInfo.roomId)
+          dispatch(setChatInfo({
+            roomId: response.data.rooms[0].roomId,
+            profilePicture: response.data.rooms[0].image,
+            userName: response.data.rooms[0].userName,
+            email: response.data.rooms[0].email
+          }));
+        setCurrentPage(currentPage);
+        setTotalPages(totalPages);
+        setHasMore(currentPage < totalPages);
       }
     } catch (error) {
       if (error.status === 404) {
-        setTitle('Để bắt đầu, hãy tìm kiếm một người dùng')
+        setRooms([]);
+        setHasMore(true)
+        setTitleError(error.response.data.message)
       } else if ((error.response.status === 401 || error.response.status === 403) && !isRetry) {
         const resultRefreshToken = await RefreshToken();
         if (resultRefreshToken.success) {
-          return fetchUserRooms(true);
+          return fetchUserRooms(page, append, true);
         } else navigate('/');
       }
+    } finally {
+      setLoading(false);
     }
+
   };
 
   // Kết nối socket và lắng nghe sự kiện 'updateRoomList'
   useEffect(() => {
     // Lấy danh sách phòng lần đầu khi component được tải
-    fetchUserRooms();
+    fetchUserRooms(1, false);
 
     // Kết nối tới server socket
-
+    // khởi tạo
+    const socketInstance = initializeSocket();
     // Lắng nghe sự kiện 'updateRoomList' để cập nhật lại danh sách phòng
-    socket.on('updateRoomList', () => {
-      fetchUserRooms();
+    socketInstance.on('updateRoomList', () => {
+      fetchUserRooms(1, false);
     });
 
     // Đóng kết nối socket khi component bị unmount
-    // return () => {
-    //   socket.disconnect();
-    // };
+    return () => {
+      socketInstance.off('updateRoomList'); // Xóa lắng nghe sự kiện
+      socketInstance.disconnect(); // Ngắt kết nối socket
+    };
   }, []);
 
+  // Xử lý cuộn để tải thêm
+  const handleScroll = () => {
+    const container = scrollContainerRef.current;
+    if (
+      container &&
+      container.scrollTop + container.clientHeight >= container.scrollHeight - 100 &&
+      !loading &&
+      hasMore
+    ) {
+      fetchUserRooms(currentPage + 1, true);
+    }
+  };
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+    }
+
+    return () => {
+      if (container) {
+        container.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, [loading, hasMore, currentPage]);
   // Hàm để xử lý khi nhấn nút quay lại
   const handleBackClick = () => {
     setIsSearching(false);
@@ -103,9 +161,11 @@ const RoomList = () => {
       </div>
 
       {/* Nội dung chính */}
-      <div className="room-list-content">
+      <div className="room-list-content"
+        ref={scrollContainerRef}
+      >
         {isSearching ? (
-          <UserSearch searchText={searchText} />
+          <UserSearch searchText={searchText} setIsSearching={setIsSearching} />
         ) : title ? <h5 className='text-center text-secondary'>
           {title}
         </h5> : (
@@ -119,6 +179,18 @@ const RoomList = () => {
             />
           ))
         )}
+        {loading && (
+          <div className="text-center">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Đang tải...</span>
+            </div>
+            <p>Đang tải...</p>
+          </div>
+        )}
+
+
+        {titleError && <h4 className="text-center text-danger">{titleError}</h4>}
+        {(!hasMore && totalPages != 1) && <h5 className="text-center text-primary mt-2">Đã hiển thị tất cả phòng chat.</h5>}
       </div>
     </div>
   );

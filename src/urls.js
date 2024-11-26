@@ -29,4 +29,11 @@ module.exports = {
   getUserRooms: 'http://localhost:1002/getUserRooms',
   // Tìm kiếm người dùng
   searchUser: 'http://localhost:1002/searchUser',
+  // Tạo phòng chat
+  createRoom: 'http://localhost:1002/createRoom',
+
+  // Sửa tin nhắn
+  editMessageById: (messageId) => `http://localhost:1002/editMessage/${messageId}`,
+  // Xoá tin nhắn
+  deleteMessageById: (messageId) => `http://localhost:1002/deleteMessage/${messageId}`,
 };

@@ -1,13 +1,17 @@
-import React, { useEffect, useState,useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { RefreshToken } from "../../../utils/checkToken";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 import _ from "lodash";
 import { getCookie } from '../../../utils/cookie';
+//cập nhật thông tin khi người dùng được chọn
+import { useDispatch } from 'react-redux';
+import { setChatInfo } from '../../../redux/slices/chatSlice';
 const url = require("../../../urls");
 
-const UserSearch = ({ searchText }) => {
+const UserSearch = ({ searchText, setIsSearching }) => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const [users, setUsers] = useState([]); // Dữ liệu người dùng
     const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
     const [totalPages, setTotalPages] = useState(1); // Tổng số trang
@@ -18,7 +22,6 @@ const UserSearch = ({ searchText }) => {
 
     const fetchUsers = async (page = 1, append = false, isRetry = false) => {
         if (!searchText.trim()) return;
-
         setLoading(true);
         setTitleError();
         try {
@@ -72,38 +75,84 @@ const UserSearch = ({ searchText }) => {
     const handleScroll = () => {
         const container = scrollContainerRef.current;
         if (
-          container &&
-          container.scrollTop + container.clientHeight >= container.scrollHeight &&
-          !loading &&
-          hasMore
+            container &&
+            container.scrollTop + container.clientHeight >= container.scrollHeight - 100 &&
+            !loading &&
+            hasMore
         ) {
-          fetchUsers(currentPage + 1, true);
+            fetchUsers(currentPage + 1, true);
         }
-      };
-    
-      useEffect(() => {
-        const container = scrollContainerRef.current;
-    
-        if (container) {
-          container.addEventListener("scroll", handleScroll);
-        }
-    
-        return () => {
-          if (container) {
-            container.removeEventListener("scroll", handleScroll);
-          }
-        };
-      }, [loading, hasMore, currentPage]);
+    };
 
+    useEffect(() => {
+        const container = scrollContainerRef.current;
+
+        if (container) {
+            container.addEventListener("scroll", handleScroll);
+        }
+
+        return () => {
+            if (container) {
+                container.removeEventListener("scroll", handleScroll);
+            }
+        };
+    }, [loading, hasMore, currentPage]);
+
+    // tạo phòng chat khi click vào người dùng
+    const handleCreateRoom = async (targetUserId, isRetry = false, userName = null, profilePicture = null, email = null) => {
+        setLoading(true);
+        setTitleError();
+        try {
+            const response = await axios.post(url.createRoom, { targetUserId }, {
+                headers: {
+                    Authorization: `Bearer ${getCookie('accessToken')}`, // Thêm token vào header
+                },
+            });
+            if (response.data.success === true) {
+                dispatch(setChatInfo({
+                    roomId: response.data.roomId,
+                    profilePicture: profilePicture,
+                    userName: userName,
+                    email: email
+                }));
+                setIsSearching(false)
+            }
+
+        } catch (error) {
+            if (error.status === 400) {
+                dispatch(setChatInfo({
+                    roomId: error.response.data.roomId,
+                    profilePicture: profilePicture,
+                    userName: userName,
+                    email: email
+                }));
+                setIsSearching(false)
+                //chuyển đến tab nhắn tin
+            }
+            else if (error.status === 404) {
+                setTitleError(error.response.data.message)
+            } else if ((error.response.status === 401 || error.response.status === 403) && !isRetry) {
+                const resultRefreshToken = await RefreshToken();
+                if (resultRefreshToken.success) {
+                    return fetchUsers(targetUserId, true);
+                } else navigate('/');
+            }else setTitleError(error.response.data.message)
+
+        } finally {
+            setLoading(false);
+        }
+    };
     return (
-        <div 
-        ref={scrollContainerRef}
-        style={{height: '100%',maxHeight:'100%', overflowY: 'auto'}}>
+        <div
+            ref={scrollContainerRef}
+            style={{ height: '100%', maxHeight: '100%', overflowY: 'auto' }}>
             {/* <h3>Kết quả tìm kiếm:</h3> */}
             <h3></h3>
             <ul>
                 {users.map((user) => (
-                    <div className="room-item d-flex align-items-center p-2">
+                    <div className="room-item d-flex align-items-center p-2"
+                        onClick={() => handleCreateRoom(user.userId, false, user.userName, user.profilePicture, user.email)}
+                    >
                         {/* Hình ảnh bên trái */}
                         <div className="room-image">
                             <img
@@ -148,7 +197,7 @@ const UserSearch = ({ searchText }) => {
 
 
             {titleError && <h4 className="text-center text-danger">{titleError}</h4>}
-            {!hasMore && <h5 className="text-center text-primary">Đã hiển thị tất cả kết quả.</h5>}
+            {(!hasMore && totalPages !=1) && <h5 className="text-center text-primary">Đã hiển thị tất cả kết quả.</h5>}
         </div>
     );
 };

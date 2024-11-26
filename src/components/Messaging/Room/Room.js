@@ -1,12 +1,20 @@
 // src/components/Room/Room.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import RoomList from './RoomList';
 import UserProfile from './UserProfile';
 import { BsChatDots, BsGear } from 'react-icons/bs';
+import { socket } from '../../../socket';
+import { useSelector } from 'react-redux';
 
 const Room = () => {
+  const chatInfo = useSelector((state) => state.chat);
   const [activeTab, setActiveTab] = useState('chat'); // 'chat' cho Đoạn chat và 'settings' cho Cài đặt
-
+  useEffect(() => {
+    // //vào phòng chat
+    // console.log('chatInfo.roomId',chatInfo.roomId);
+    
+    
+  }, [chatInfo.roomId]);
   const renderContent = () => {
     if (activeTab === 'chat') {
       return <RoomList />;
