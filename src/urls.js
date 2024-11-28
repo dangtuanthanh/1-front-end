@@ -1,49 +1,50 @@
 //urls.js
 module.exports = {
   //socket server
-  socketServer: 'http://localhost:1002',
+  //http://localhost:1002
+  socketServer: 'https://backendvmess.onrender.com',
 
   //Lấy danh sách tin nhắn của phòng
-  getMessagesByRoomId: (roomId) => `http://localhost:1002/${roomId}/messages`,
+  getMessagesByRoomId: (roomId) => `https://backendvmess.onrender.com/${roomId}/messages`,
   // đăng nhập
-  login: 'http://localhost:1002/login',
+  login: 'https://backendvmess.onrender.com/login',
   //đăng nhập bằng google
-  googleLogin: 'http://localhost:1002/googleLogin',
+  googleLogin: 'https://backendvmess.onrender.com/googleLogin',
   // đăng ký
-  register: 'http://localhost:1002/register',
+  register: 'https://backendvmess.onrender.com/register',
   //xác thực mã code đăng ký email
-  verifyCode: "http://localhost:1002/verifyCode",
+  verifyCode: "https://backendvmess.onrender.com/verifyCode",
   //yêu cầu quên mật khẩu
-  forgotPassword: "http://localhost:1002/forgotPassword",
+  forgotPassword: "https://backendvmess.onrender.com/forgotPassword",
   //xác thực mã quên mật khẩu
-  verifyResetCode: "http://localhost:1002/verifyResetCode",
+  verifyResetCode: "https://backendvmess.onrender.com/verifyResetCode",
   //đổi mật khẩu mới cho chức năng quên mật khẩu
-  resetPassword: "http://localhost:1002/resetPassword",
+  resetPassword: "https://backendvmess.onrender.com/resetPassword",
   // đăng xuất
-  logout: 'http://localhost:1002/logout',
+  logout: 'https://backendvmess.onrender.com/logout',
 
 
   // kiểm tra token trước khi vào trang
-  checkToken: 'http://localhost:1002/checkToken',
+  checkToken: 'https://backendvmess.onrender.com/checkToken',
   // yêu cầu lấy lại access token
-  refreshToken: 'http://localhost:1002/refreshToken',
+  refreshToken: 'https://backendvmess.onrender.com/refreshToken',
 
   // Lấy danh sách phòng chat của người dùng
-  getUserRooms: 'http://localhost:1002/getUserRooms',
+  getUserRooms: 'https://backendvmess.onrender.com/getUserRooms',
   // Tìm kiếm người dùng
-  searchUser: 'http://localhost:1002/searchUser',
+  searchUser: 'https://backendvmess.onrender.com/searchUser',
   // Tạo phòng chat
-  createRoom: 'http://localhost:1002/createRoom',
+  createRoom: 'https://backendvmess.onrender.com/createRoom',
 
   // Sửa tin nhắn
-  editMessageById: (messageId) => `http://localhost:1002/editMessage/${messageId}`,
+  editMessageById: (messageId) => `https://backendvmess.onrender.com/editMessage/${messageId}`,
   // Xoá tin nhắn
-  deleteMessageById: (messageId) => `http://localhost:1002/deleteMessage/${messageId}`,
+  deleteMessageById: (messageId) => `https://backendvmess.onrender.com/deleteMessage/${messageId}`,
 
   //đổi ảnh người dùng
-  updateProfilePicture: 'http://localhost:1002/updateProfilePicture',
+  updateProfilePicture: 'https://backendvmess.onrender.com/updateProfilePicture',
   // đổi tên người dùng
-  updateUserName: 'http://localhost:1002/updateUserName',
+  updateUserName: 'https://backendvmess.onrender.com/updateUserName',
   // đổi mật khẩu người dùng
-  changePassword: 'http://localhost:1002/changePassword',
+  changePassword: 'https://backendvmess.onrender.com/changePassword',
 };
