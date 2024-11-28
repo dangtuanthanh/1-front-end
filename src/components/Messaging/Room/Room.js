@@ -6,7 +6,7 @@ import { BsChatDots, BsGear } from 'react-icons/bs';
 import { socket } from '../../../socket';
 import { useSelector } from 'react-redux';
 
-const Room = () => {
+const Room = ({handleSelectView,isMobile}) => {
   const chatInfo = useSelector((state) => state.chat);
   const [activeTab, setActiveTab] = useState('chat'); // 'chat' cho Đoạn chat và 'settings' cho Cài đặt
   useEffect(() => {
@@ -17,7 +17,7 @@ const Room = () => {
   }, [chatInfo.roomId]);
   const renderContent = () => {
     if (activeTab === 'chat') {
-      return <RoomList />;
+      return <RoomList handleSelectView={handleSelectView} isMobile={isMobile}/>;
     } else if (activeTab === 'settings') {
       return <UserProfile />;
     }

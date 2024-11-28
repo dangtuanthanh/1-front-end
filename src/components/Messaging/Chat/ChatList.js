@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { RefreshToken } from '../../../utils/checkToken';
 import axios from 'axios';
 // import RoomItem from './RoomItem';
-import { BsCircleFill } from 'react-icons/bs';
+import { BsCircleFill, BsArrowLeft } from 'react-icons/bs';
 import { getCookie } from '../../../utils/cookie';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
@@ -13,7 +13,7 @@ import ChatItem from './ChatItem';
 import { initializeSocket, socket } from '../../../socket';
 const url = require("../../../urls");
 
-const ChatList = () => {
+const ChatList = ({ handleSelectView, isMobile }) => {
     const navigate = useNavigate();
     const chatInfo = useSelector((state) => state.chat);
     const [title, setTitle] = useState();
@@ -22,10 +22,11 @@ const ChatList = () => {
     const [totalPages, setTotalPages] = useState(1); // Tổng số trang
     const [loading, setLoading] = useState(false); // Trạng thái tải dữ liệu
     const [hasMore, setHasMore] = useState(true); // Kiểm tra còn dữ liệu để tải không
-    const [titleError, setTitleError] = useState(); // Dữ liệu người dùng
+    const [titleError, setTitleError] = useState();
     const scrollContainerRef = useRef(null);
     const [joinRoom, setJoinRoom] = useState(false);
     const hasLoadedRef = useRef(false); // Ref để kiểm tra lần tải trang đầu tiên
+    const [messageAction, setMessageAction] = useState(null);
     // Hàm lấy danh sách phòng chat người dùng từ API
     const fetchGetMessagesByRoomId = async (page = 1, append = false, isRetry = false) => {
         if (!chatInfo.roomId)
@@ -97,24 +98,38 @@ const ChatList = () => {
             }, 200); // Thử với độ trễ 200ms để DOM render hoàn chỉnh
 
         });
+        hasLoadedRef.current = false;
         //lắng nghe sự kiện sửa tin nhắn
-        socketInstance.on('editMessage', (messageId, newMessageContent, editedAt, roomId) => {
-            console.log('messageId', messageId);
-            console.log('newMessageContent', newMessageContent);
-
+        socketInstance.on('messageEdited', (data) => {
+            // Cập nhật danh sách tin nhắn
+            setMessages((prevMessages) =>
+                prevMessages.map((message) =>
+                    message.messageId === data.messageId
+                        ? {
+                            ...message,
+                            messageContent: data.newMessageContent,
+                            editedAt: data.editedAt
+                        }
+                        : message
+                )
+            );
 
         });
         //lắng nghe sự kiện xoá tin nhắn
-        socketInstance.on('editMessage', (messageId, roomId) => {
-            console.log('messageId', messageId);
-            console.log('roomId', roomId);
+        socketInstance.on('messageDeleted', (data) => {
+            setMessages((prevMessages) =>
+                prevMessages.filter((message) => message.messageId !== data.messageId)
+            );
         });
         // Dọn dẹp kết nối và sự kiện khi component unmount
         return () => {
             socketInstance.off('joinedRoom'); // Xóa lắng nghe sự kiện
             socketInstance.off('receiveMessage');
+            socketInstance.off('messageEdited');
+            socketInstance.off('messageDeleted');
             socketInstance.disconnect(); // Ngắt kết nối socket
         };
+
 
 
     }, [chatInfo.roomId]);
@@ -146,15 +161,107 @@ const ChatList = () => {
         };
     }, [loading, hasMore, currentPage]);
 
+    useEffect(() => {
+
+        console.log('messageAction', messageAction);
+
+    }, [messageAction]);
+
+
+
+    const handleEditMessage = async () => {
+        let result = prompt('Sửa tin nhắn', messageAction.messageContent);
+        if (result !== null) {
+            result = result.trim()
+            const fetchEditMessage = async (isRetry = false) => {
+                try {
+                    const response = await axios.put(url.editMessageById(messageAction.messageId), {
+                        newMessageContent: result
+                    }, {
+                        headers: {
+                            Authorization: `Bearer ${getCookie('accessToken')}`,
+                        }
+                    });
+                    //thành công
+                    // Cập nhật danh sách tin nhắn
+                    const updatedMessage = response.data.updatedMessage;
+                    setMessages((prevMessages) =>
+                        prevMessages.map((message) =>
+                            message.messageId === updatedMessage.messageId
+                                ? {
+                                    ...message,
+                                    messageContent: updatedMessage.newMessageContent,
+                                    editedAt: updatedMessage.editedAt
+                                }
+                                : message
+                        )
+                    );
+                    //phát sự kiện cập nhật tin nhắn
+                    socket.emit('editMessage', {
+                        messageId: updatedMessage.messageId,
+                        newMessageContent: updatedMessage.newMessageContent,
+                        editedAt: updatedMessage.editedAt,
+                        roomId: chatInfo.roomId
+                    });
+                } catch (error) {
+                    if ((error.response.status === 401 || error.response.status === 403) && !isRetry) {
+                        const resultRefreshToken = await RefreshToken();
+                        if (resultRefreshToken.success) {
+                            return fetchEditMessage(true);
+                        } else navigate('/');
+                    }
+                }
+            }
+            fetchEditMessage(false)
+        } else {
+            alert("Hãy nhập nội dung tin nhắn");
+        }
+    };
+    const handleDeleteMessage = async () => {
+        const fetchDeleteMessage = async (isRetry = false) => {
+            try {
+                const response = await axios.delete(url.deleteMessageById(messageAction.messageId), {
+                    headers: {
+                        Authorization: `Bearer ${getCookie('accessToken')}`,
+                    }
+                });
+                //thành công
+                // Cập nhật danh sách tin nhắn
+                setMessages((prevMessages) =>
+                    prevMessages.filter((message) => message.messageId !== response.data.messageId)
+                );
+                //phát sự kiện xoá tin nhắn
+                socket.emit('deleteMessage', {
+                    messageId: response.data.messageId,
+                    roomId: chatInfo.roomId
+                });
+            } catch (error) {
+                if ((error.response.status === 401 || error.response.status === 403) && !isRetry) {
+                    const resultRefreshToken = await RefreshToken();
+                    if (resultRefreshToken.success) {
+                        return fetchDeleteMessage(true);
+                    } else navigate('/');
+                }
+            }
+        }
+        fetchDeleteMessage(false)
+    };
     return (
         <div className="room-container d-flex flex-column shadow mt-3 p-3 ms-3 me-3 rounded">
+
             <div className="">
                 <div className="room-list-container">
                     <div className="room-item d-flex align-items-center p-2"
-                        onClick={() => alert("thông tin người dùng")}
                     >
+                        {isMobile && (
+                            <button className="back-button" onClick={handleSelectView}>
+                                <BsArrowLeft size={20} />
+                            </button>
+                        )}
                         {/* Hình ảnh bên trái */}
-                        <div className="room-image">
+                        <div className="room-image"
+                        // onClick={() => alert("thông tin người dùng")}
+                        >
                             <img
                                 src={chatInfo.profilePicture}
                                 alt={chatInfo.userName || 'user Image'}
@@ -163,7 +270,9 @@ const ChatList = () => {
                         </div>
 
                         {/* Phần nội dung bên phải */}
-                        <div className="flex-grow-1 ms-3">
+                        <div className="flex-grow-1 ms-3"
+                        // onClick={() => alert("thông tin người dùng")}
+                        >
                             {/* Tên người dùng hoặc tên phòng */}
                             <div className="d-flex justify-content-between align-items-center">
                                 <h5 className="mb-0 text-truncate">{chatInfo.userName || chatInfo.roomName || 'Phòng chat'} {joinRoom && <BsCircleFill style={{ color: '#28a745', fontSize: '1rem' }} />}</h5>
@@ -211,6 +320,10 @@ const ChatList = () => {
                             <ChatItem
                                 key={message.messageId}
                                 message={message}
+                                messageAction={messageAction}
+                                setMessageAction={setMessageAction}
+                                handleEditMessage={handleEditMessage}
+                                handleDeleteMessage={handleDeleteMessage}
                             />
                         ))
                     )}

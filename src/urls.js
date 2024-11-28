@@ -19,6 +19,9 @@ module.exports = {
   verifyResetCode: "http://localhost:1002/verifyResetCode",
   //đổi mật khẩu mới cho chức năng quên mật khẩu
   resetPassword: "http://localhost:1002/resetPassword",
+  // đăng xuất
+  logout: 'http://localhost:1002/logout',
+
 
   // kiểm tra token trước khi vào trang
   checkToken: 'http://localhost:1002/checkToken',
@@ -36,4 +39,11 @@ module.exports = {
   editMessageById: (messageId) => `http://localhost:1002/editMessage/${messageId}`,
   // Xoá tin nhắn
   deleteMessageById: (messageId) => `http://localhost:1002/deleteMessage/${messageId}`,
+
+  //đổi ảnh người dùng
+  updateProfilePicture: 'http://localhost:1002/updateProfilePicture',
+  // đổi tên người dùng
+  updateUserName: 'http://localhost:1002/updateUserName',
+  // đổi mật khẩu người dùng
+  changePassword: 'http://localhost:1002/changePassword',
 };

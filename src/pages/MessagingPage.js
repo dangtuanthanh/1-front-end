@@ -9,7 +9,7 @@ import { useDispatch } from 'react-redux';
 import { login } from '../redux/slices/authSlice';
 const MessagingPage = () => {
   const [currentView, setCurrentView] = useState('room'); // 'room' cho danh sách phòng, 'chat' cho danh sách tin nhắn
-  const [selectedRoom, setSelectedRoom] = useState(null); // Phòng đã chọn
+  const [selectedRoom, setSelectedRoom] = useState(false); // Phòng đã chọn
   const [isMobile, setIsMobile] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -44,9 +44,11 @@ const MessagingPage = () => {
   }, [navigate, dispatch]);
 
   // Hàm chọn phòng hoặc người dùng
-  const handleSelectRoom = (room) => {
-    setSelectedRoom(room);
-    setCurrentView('chat'); // Chuyển sang chế độ chat khi chọn phòng hoặc người dùng
+  const handleSelectView = () => {
+    if (currentView === 'chat')
+      setCurrentView('room')
+    else setCurrentView('chat')
+
   };
   if (loading) {
     return <div>Vui lòng chờ...</div>;  // Hiển thị loading trong khi chờ kết quả từ checkToken
@@ -59,11 +61,11 @@ const MessagingPage = () => {
           <>
             {/* Phần bên trái: Room */}
             <div className="col-5 p-0">
-              <Room onSelectRoom={handleSelectRoom} />
+              <Room />
             </div>
             {/* Phần bên phải: ChatList */}
             <div className="col-7 p-0">
-              <ChatList selectedRoom={selectedRoom} />
+              <ChatList />
             </div>
           </>
         ) : (
@@ -72,12 +74,18 @@ const MessagingPage = () => {
             {currentView === 'room' ? (
               // Hiển thị Room trên điện thoại
               <div className="col-12 p-0">
-                <Room onSelectRoom={handleSelectRoom} />
+                <Room
+                  handleSelectView={handleSelectView}
+                  isMobile={isMobile}
+                />
               </div>
             ) : (
               // Hiển thị ChatList khi đã chọn phòng trên điện thoại
               <div className="col-12 p-0">
-                <ChatList selectedRoom={selectedRoom} />
+                <ChatList
+                  handleSelectView={handleSelectView}
+                  isMobile={isMobile}
+                />
               </div>
             )}
           </>

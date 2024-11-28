@@ -13,7 +13,7 @@ import { useDispatch } from 'react-redux';
 import { setChatInfo } from '../../../redux/slices/chatSlice';
 const url = require("../../../urls");
 
-const RoomList = () => {
+const RoomList = ({handleSelectView,isMobile}) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const chatInfo = useSelector((state) => state.chat);
@@ -29,7 +29,7 @@ const RoomList = () => {
   const [titleError, setTitleError] = useState(); // Dữ liệu người dùng
   const scrollContainerRef = useRef(null);
   // Hàm lấy danh sách phòng chat người dùng từ API
-  const fetchUserRooms = async (page = 1, append = false, isRetry = false) => {
+  const fetchUserRooms = async (page = 1, append = false, isRetry = false, isAutoLoadChat) => {
     try {
       setLoading(true);
       setTitleError();
@@ -45,7 +45,7 @@ const RoomList = () => {
       if (response.status === 200) {
         const { rooms: newRooms, totalPages, currentPage } = response.data;
         setRooms((prev) => (append ? [...prev, ...newRooms] : newRooms));
-        if (!chatInfo.roomId)
+        if (!chatInfo.roomId && isAutoLoadChat)
           dispatch(setChatInfo({
             roomId: response.data.rooms[0].roomId,
             profilePicture: response.data.rooms[0].image,
@@ -64,7 +64,7 @@ const RoomList = () => {
       } else if ((error.response.status === 401 || error.response.status === 403) && !isRetry) {
         const resultRefreshToken = await RefreshToken();
         if (resultRefreshToken.success) {
-          return fetchUserRooms(page, append, true);
+          return fetchUserRooms(page, append, true,isAutoLoadChat);
         } else navigate('/');
       }
     } finally {
@@ -76,14 +76,14 @@ const RoomList = () => {
   // Kết nối socket và lắng nghe sự kiện 'updateRoomList'
   useEffect(() => {
     // Lấy danh sách phòng lần đầu khi component được tải
-    fetchUserRooms(1, false);
+   
 
     // Kết nối tới server socket
     // khởi tạo
     const socketInstance = initializeSocket();
     // Lắng nghe sự kiện 'updateRoomList' để cập nhật lại danh sách phòng
     socketInstance.on('updateRoomList', () => {
-      fetchUserRooms(1, false);
+      fetchUserRooms(1, false,false,false);
     });
 
     // Đóng kết nối socket khi component bị unmount
@@ -119,6 +119,11 @@ const RoomList = () => {
       }
     };
   }, [loading, hasMore, currentPage]);
+
+  useEffect(() => {
+    fetchUserRooms(1, false,false,true);
+
+  }, [chatInfo.roomId]);
   // Hàm để xử lý khi nhấn nút quay lại
   const handleBackClick = () => {
     setIsSearching(false);
@@ -173,6 +178,8 @@ const RoomList = () => {
             <RoomItem
               key={room.roomId}
               room={room}
+              handleSelectView={handleSelectView}
+              isMobile={isMobile}
             // roomName={room.roomName}
             // unreadMessagesCount={room.unreadMessagesCount}
             // lastMessageTime={room.lastMessageTime}

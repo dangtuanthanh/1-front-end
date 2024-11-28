@@ -2,8 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { setChatInfo } from '../../../redux/slices/chatSlice';
-const RoomItem = ({ room }) => {
+import { useSelector } from 'react-redux';
+const RoomItem = ({ room, handleSelectView, isMobile }) => {
   const dispatch = useDispatch();
+  const chatInfo = useSelector((state) => state.chat);
   return (
     <div className="room-item d-flex align-items-center p-2"
       onClick={() => {
@@ -13,7 +15,10 @@ const RoomItem = ({ room }) => {
           userName: room.userName,
           email: room.email
         }));
+        console.log('isMobile',isMobile);
         
+        if (isMobile)
+          handleSelectView()
       }}
 
 
@@ -42,7 +47,7 @@ const RoomItem = ({ room }) => {
             {room.lastMessage}
           </p>
           {
-            room.unreadMessagesCount > 0 && (
+            (room.unreadMessagesCount > 0 && chatInfo.roomId != room.roomId) && (
               <span className="badge bg-danger rounded-pill unread-count">
                 {room.unreadMessagesCount}
               </span>
