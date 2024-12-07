@@ -105,12 +105,13 @@ const LoginForm = ({ setCurrentForm }) => {
         <a style={{textDecoration:'none'}} href="#" onClick={() => setCurrentForm('forgotPassword')}>Quên mật khẩu?</a>
       </div>
       <hr />
-      <div className="mt-3">
+      <div className="mt-3 d-flex justify-content-center">
         <GoogleLogin
           onSuccess={handleGoogleLoginSuccess}
           onError={() => {
             setError('Đăng nhập Google thất bại.');
           }}
+          buttonText="Đăng Nhập Bằng Google"
         />
       </div>
       <div className="mt-3 d-flex justify-content-center">
