@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { BsPaperclip, BsFillSendFill } from 'react-icons/bs';
 import { useSelector } from 'react-redux';
 import { initializeSocket, socket } from '../../../socket';
-const MessageForm = ({isMobile}) => {
+const MessageForm = ({ isMobile }) => {
     const [message, setMessage] = useState('');
     const chatInfo = useSelector((state) => state.chat);
     const inputRef = useRef(null);
@@ -14,7 +14,7 @@ const MessageForm = ({isMobile}) => {
     const handleSend = () => {
         if (message.trim()) {
             //gửi tin nhắn thông qua socket
-            socket.emit('sendMessage', { roomId: chatInfo.roomId,message: message});
+            socket.emit('sendMessage', { roomId: chatInfo.roomId, message: message });
             setMessage(''); // Xóa nội dung sau khi gửi
         }
     };
@@ -22,7 +22,8 @@ const MessageForm = ({isMobile}) => {
     useEffect(() => {
         // Focus lại ô nhập liệu khi roomId thay đổi
         if (inputRef.current) {
-            inputRef.current.focus();
+            if (!isMobile)
+                inputRef.current.focus();
             setMessage('')
         }
     }, [chatInfo.roomId]); // Theo dõi sự thay đổi của chatInfo.roomId
@@ -46,7 +47,7 @@ const MessageForm = ({isMobile}) => {
                 placeholder="Nhập tin nhắn..."
                 value={message}
                 onChange={handleInputChange}
-                autoFocus={!isMobile}
+                autoFocus={isMobile ? false : true}
             />
 
             {/* Nút gửi */}
