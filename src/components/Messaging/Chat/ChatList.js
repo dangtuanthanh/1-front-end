@@ -333,7 +333,9 @@ const ChatList = ({ handleSelectView, isMobile }) => {
             </div>
             {/* Thanh nav ở dưới cùng */}
             <div className="room-nav d-flex justify-content-around align-items-center">
-                <MessageForm></MessageForm>
+                <MessageForm
+                isMobile = {isMobile}
+                ></MessageForm>
             </div>
 
         </div>

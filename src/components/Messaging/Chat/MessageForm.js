@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { BsPaperclip, BsFillSendFill } from 'react-icons/bs';
 import { useSelector } from 'react-redux';
 import { initializeSocket, socket } from '../../../socket';
-const MessageForm = () => {
+const MessageForm = ({isMobile}) => {
     const [message, setMessage] = useState('');
     const chatInfo = useSelector((state) => state.chat);
     const inputRef = useRef(null);
@@ -46,8 +46,7 @@ const MessageForm = () => {
                 placeholder="Nhập tin nhắn..."
                 value={message}
                 onChange={handleInputChange}
-                autoFocus
-
+                autoFocus={!isMobile}
             />
 
             {/* Nút gửi */}
