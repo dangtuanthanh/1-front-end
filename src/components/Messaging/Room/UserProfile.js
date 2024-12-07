@@ -6,7 +6,6 @@ import { RefreshToken } from '../../../utils/checkToken';
 import { getCookie, deleteCookie } from '../../../utils/cookie';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-axios.defaults.withCredentials = true; // Bật toàn cục
 const url = require("../../../urls");
 const UserProfile = () => {
     const navigate = useNavigate();
