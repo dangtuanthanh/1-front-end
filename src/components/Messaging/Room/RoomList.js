@@ -170,7 +170,12 @@ const RoomList = ({handleSelectView,isMobile}) => {
         ref={scrollContainerRef}
       >
         {isSearching ? (
-          <UserSearch searchText={searchText} setIsSearching={setIsSearching} />
+          <UserSearch 
+          searchText={searchText} 
+          setIsSearching={setIsSearching}
+          isMobile={isMobile}
+          handleSelectView={handleSelectView}
+           />
         ) : title ? <h5 className='text-center text-secondary'>
           {title}
         </h5> : (

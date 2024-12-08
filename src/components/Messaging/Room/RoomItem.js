@@ -15,7 +15,6 @@ const RoomItem = ({ room, handleSelectView, isMobile }) => {
           userName: room.userName,
           email: room.email
         }));
-        console.log('isMobile',isMobile);
         
         if (isMobile)
           handleSelectView()

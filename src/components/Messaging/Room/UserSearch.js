@@ -9,7 +9,7 @@ import { useDispatch } from 'react-redux';
 import { setChatInfo } from '../../../redux/slices/chatSlice';
 const url = require("../../../urls");
 
-const UserSearch = ({ searchText, setIsSearching }) => {
+const UserSearch = ({ searchText, setIsSearching, isMobile, handleSelectView }) => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [users, setUsers] = useState([]); // Dữ liệu người dùng
@@ -115,6 +115,9 @@ const UserSearch = ({ searchText, setIsSearching }) => {
                     userName: userName,
                     email: email
                 }));
+                if (isMobile)
+                    handleSelectView()
+
                 setIsSearching(false)
             }
 
@@ -126,6 +129,8 @@ const UserSearch = ({ searchText, setIsSearching }) => {
                     userName: userName,
                     email: email
                 }));
+                if (isMobile)
+                    handleSelectView()
                 setIsSearching(false)
                 //chuyển đến tab nhắn tin
             }
@@ -136,7 +141,7 @@ const UserSearch = ({ searchText, setIsSearching }) => {
                 if (resultRefreshToken.success) {
                     return fetchUsers(targetUserId, true);
                 } else navigate('/');
-            }else setTitleError(error.response.data.message)
+            } else setTitleError(error.response.data.message)
 
         } finally {
             setLoading(false);
@@ -197,7 +202,7 @@ const UserSearch = ({ searchText, setIsSearching }) => {
 
 
             {titleError && <h4 className="text-center text-danger">{titleError}</h4>}
-            {(!hasMore && totalPages !=1) && <h5 className="text-center text-primary">Đã hiển thị tất cả kết quả.</h5>}
+            {(!hasMore && totalPages != 1) && <h5 className="text-center text-primary">Đã hiển thị tất cả kết quả.</h5>}
         </div>
     );
 };
